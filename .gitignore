@@ -1,0 +1,50 @@
+# Virtual environment
+venv/
+.env/
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Cache / temp data
+backend/cache/
+*.cache
+
+# Environment-specific files
+.env.local
+.env.*.local
+
+# Streamlit 
+.streamlit/
+
+# Testing / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Build / dist
+dist/
+build/
+*.egg-info/
+
+# Node
+node_modules/
+
+# Kaggle / data files
+backend/data/*.csv
+backend/data/*.json
+backend/data/*.zip
