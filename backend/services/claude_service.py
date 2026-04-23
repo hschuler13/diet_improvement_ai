@@ -9,25 +9,25 @@ client = OpenAI(
     api_key=os.environ["HF_TOKEN"],
 )
 
-completion = client.chat.completions.create(
-    model="moonshotai/Kimi-K2.6:novita",
-    messages=[
-        {
-            "role": "user",
-            "content": [
-                {
-                    "type": "text",
-                    "text": "Describe this image in one sentence."
-                },
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": "https://cdn.britannica.com/61/93061-050-99147DCE/Statue-of-Liberty-Island-New-York-Bay.jpg"
-                    }
-                }
-            ]
-        }
-    ],
-)
+messages = [{"role": "system", "content": "You are a useful assistant that responds to users' questions"}]
 
-print(completion.choices[0].message)
+print("start kimi client, type 'exit' to exit")
+
+while True:
+    userInput = input("User: ")
+
+    if userInput.lower() == "exit":
+        print("exit kimi client")
+        break
+
+    messages.append({"role": "user", "content": userInput})
+
+    completion = client.chat.completions.create(
+        model="moonshotai/Kimi-K2.6:novita",
+        messages = messages
+    )
+
+    response = completion.choices[0].message
+    print("Kimi: " + response.content)
+
+    messages.append({"role": "assistant", "content": response.content})
