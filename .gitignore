@@ -43,3 +43,6 @@ build/
 
 # Node
 node_modules/
+
+# Data
+data/raw_data/
