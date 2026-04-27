@@ -44,7 +44,5 @@ build/
 # Node
 node_modules/
 
-# Kaggle / data files
-backend/data/*.csv
-backend/data/*.json
-backend/data/*.zip
+# Data
+data/raw_data/
