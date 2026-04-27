@@ -1,3 +1,3 @@
 import streamlit as st
 
-st.write("# Nutrition Analysis 👋")
+st.write("# Saved Recipes 👋")
