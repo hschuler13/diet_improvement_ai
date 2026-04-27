@@ -1,3 +1,5 @@
 import streamlit as st
 
-st.write("# Meal Planner 👋")
+def show_page():
+    st.title("📅 Meal Planner")
+    st.write("Welcome to your meal planning dashboard.")

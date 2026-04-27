@@ -5,8 +5,8 @@ st.set_page_config(
     page_icon="👋",
 )
 
-page_0 = st.Page("pages/0_personalization.py", title="Personalization", icon="👤")
-page_1 = st.Page("pages/1_ingredient_locator.py", title="Ingredient Locator", icon="🌽")
+page_0 = st.Page("pages/0_userprofile.py", title="User Profile", icon="🏠")
+page_1 = st.Page("pages/1_home.py", title="Home", icon="🌽")
 page_2 = st.Page("pages/2_nutrition_analysis.py", title="Nutrition Analysis", icon="🥪")
 page_3 = st.Page("pages/3_recipe_generator.py", title="Recipe Generator", icon="🧑🏻‍🍳")
 page_4 = st.Page("pages/4_meal_planner.py", title="Meal Planner", icon="🍽️")
