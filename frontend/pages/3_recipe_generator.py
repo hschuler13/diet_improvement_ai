@@ -1,4 +1,5 @@
 import streamlit as st
+import requests
 from pathlib import Path
 
 st.set_page_config(page_title="Recipe Generator", page_icon="🍳", layout="wide")
@@ -84,7 +85,7 @@ st.divider()
 if st.session_state.page != "recipe":
     st.stop()
 # da Header title
-st.markdown("<h1 style='text-align: center; margin-top: 5px; margin-bottom: 5px; color: #861657'> Create Your Personalized & Powerul Recipes Here!</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; margin-top: 5px; margin-bottom: 5px; color: #861657'> Create Your Personalized & Powerful Recipes Here!</h1>", unsafe_allow_html=True)
 st.markdown("<h2 style='text-align: center; margin-top: 0px; color: #aa4465'> Powered by Claude..</h2>", unsafe_allow_html=True) 
 st.markdown("<br>", unsafe_allow_html=True)
 #add and save buttons :p
@@ -158,22 +159,6 @@ submitcol1, submitcol2, submitcol3 = st.columns([1.2, 1, 5])
 with submitcol1: 
     subtmit_btn = st.button("Generate Recipe!", key="submit", use_container_width=True)
 
-
-if subtmit_btn: 
-    if recipeTitle and (recipeTitle or img):
-        st.success("Recipe processing...")
-        st.info(f"Recipe: {recipeTitle}")
-        st.session_state.generate_clicked = True
-        if budgetyes:
-            st.info(f"Budget: ${budgetPrice}") 
-        if nutritionbtn:
-            st.info("Increased Nutrition Value in Meal: Yes")
-        if additionalInfo_yes and additionalInfoText:
-            st.info(f"Additional Dietary Restrictions or Preferences: {additionalInfoText}")
-    else: 
-        st.warning("Please enter a recipe title & the meal's instructions or an image before submitting.")
-
-
 with submitcol2: 
     save_logic = recipeTitle and (recipe_text or img)
     save_button = st.button(
@@ -184,8 +169,41 @@ with submitcol2:
         help= "Add a title and either recipe instructions or an image to save the recipe!"  if not save_logic else "Save your recipe!"
     )
 
+if subtmit_btn: 
+    if recipeTitle and (recipeTitle or img):
+        st.success("Recipe processing...")
+        payload = {
+            "recipe_title": recipeTitle,
+            "recipe_instructions": recipe_text,
+            "recipe_image": img,
+            "budget_yes": budgetPrice,
+            "nutrition_yes": nutritionbtn,
+            "additional_info": additionalInfoText
+        }
+        try:
+            response = requests.post("http://localhost:8000/generate_recipe", json=payload, timeout=40)
+
+            if response.status_code == 200:
+                st.success("Recipe generated successfully!")
+                generated_recipe = response.json().get("generated_recipe", "No recipe able to be generated :(")
+                st.markdown(f"Generated Recipe:\n{generated_recipe}")
+                st.session_state.generate_clicked = True
+            else:
+                st.error(f"Failed to generate recipe. Status code: {response.status_code}")
+                st.session_state.generate_clicked = False
+        except requests.exceptions.ConnectionError: 
+            st.error("Error generating recipe: Backend issue.")
+            st.session_state.generate_clicked = False
+        except Exception as e:
+            st.error(f"An unexpected error occurred: {str(e)}")
+            st.session_state.generate_clicked = False
+        
+    else: 
+        st.warning("Please enter a recipe title & the meal's instructions or an image before submitting.")
+        st.session_state.generate_clicked = False 
+
+
 if save_button:
     st.success(f"Saved your recipe '{recipeTitle}'!")
 
 st.markdown("<br><br>", unsafe_allow_html=True)
-st.caption("backend integration placeholde")
