@@ -1,40 +1,116 @@
-import re
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
+from keyword_service import search_recipes, recipes
 
 load_dotenv()
 
+# connect w/ HuggingFace token
 client = OpenAI(
     base_url="https://router.huggingface.co/v1",
     api_key=os.environ["HF_TOKEN"],
 )
 
-agentGoal = "You are a helpful assistant that responds to users' questions about food and nutrition. You can provide information about recipes, ingredients, and dietary advice. Always be friendly and informative in your responses. You will be given recipe data from a dataset, and you should use that data to answer user questions about recipes, ingredients, and nutrition. If you don't know the answer to a question, it's okay to say you don't know. Tell the user to rephrase their response as needed. Your main goal is to help users with their food-related questions. If the user talks about something off topic from this, politely refuse and redirect their response to something topical."
+# change length of history
+MAX_HISTORY = 6  
+# store chat history 
+chat_history = []
 
-messages = [{"role": "system", "content": agentGoal}]
+# prompt for Kimi
+system_message = {
+    "role": "system",
+    "content": """
+    You are a smart food and nutrition assistant.
 
-print("start kimi client, type 'exit' to exit")
+    Your job:
+    - Recommend recipes based on the provided dataset.
+    - Remember recent conversation context.
+    - If user says things like:
+    "more like that"
+    "lower calorie"
+    "cheaper"
+    "another option"
+    then use recent conversation history.
+
+    Be concise, helpful, and natural.
+    """
+}
+
+
+
+# start 
+print("Start recipe AI (type 'exit' to quit)\n")
 
 while True:
     userInput = input("User: ")
 
     if userInput.lower() == "exit":
-        print("exit kimi client")
+        print("Exiting. Farewell!")
         break
 
-    messages.append({"role": "user", "content": userInput})
+    # perform dataset
+    results = search_recipes(userInput, recipes)
 
-    # somewhere in here, search thru recipe csv for the top 10 recipes
-    # add that to message of the user with a prompt attached (base the given recipe for the response on csv data)
-    # NOTE: work on formatting response
+    if results.empty:
+        dataset_context = "No matching recipes found."
+    else:
+        dataset_context = ""
 
-    completion = client.chat.completions.create(
-        model="moonshotai/Kimi-K2.6:novita",
-        messages = messages
-    )
+        for _, row in results.iterrows():
+            dataset_context += f"""
+            Recipe Name: {row['name']}
+            Ingredients: {row['ingredients']}
+            Relevance Score: {row['score']}
+            """
 
-    response = completion.choices[0].message
-    print("Kimi: " + response.content)
+    # user's request
+    prompt = f"""
+    User Request:
+    {userInput}
 
-    messages.append({"role": "assistant", "content": response.content})
+    Relevant Recipes:
+    {dataset_context}
+
+    Use recent conversation context if useful.
+    Use only provided recipes when recommending.
+    """
+
+    messages = [system_message]
+
+    # include recent memory only
+    messages.extend(chat_history[-MAX_HISTORY:])
+
+    # add current user prompt
+    messages.append({
+        "role": "user",
+        "content": prompt
+    })
+
+    # call Kimi
+    try:
+        completion = client.chat.completions.create(
+            model="moonshotai/Kimi-K2.6:novita",
+            messages=messages,
+            temperature=0.7
+        )
+
+        response = completion.choices[0].message.content
+
+        print("\n Kimi:", response, "\n")
+
+        # save chat memory
+        chat_history.append({
+            "role": "user",
+            "content": userInput
+        })
+
+        chat_history.append({
+            "role": "assistant",
+            "content": response
+        })
+
+        # trim memory if too large
+        chat_history = chat_history[-MAX_HISTORY:]
+
+    except Exception as e:
+        print(" Error:", e)

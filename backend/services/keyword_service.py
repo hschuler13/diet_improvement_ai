@@ -1,18 +1,48 @@
 import re
 import pandas as pd
 
-# NOTE: do i need to put this in like a main function or sum shit bruh? or can i just ball with it
 # load data
-recipes = pd.read_csv("NEW_recipes.csv")
-recipes = pd.read_csv("NEW_nutrition.csv")
+recipes = pd.read_csv("../data/new_data/NEW_recipes.csv")
+nutrition = pd.read_csv("../data/new_data/NEW_nutrition.csv")
 
-# filter out stopwords from user input
+# stopwords
 stopwords = {
-    "i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are",("theirs")
+    "i","me","my","myself","we","our","ours","ourselves",
+    "you","your","yours","yourself","yourselves",
+    "he","him","his","himself","she","her","hers","herself",
+    "it","its","itself","they","them","their","theirs","themselves",
+    "what","which","who","whom","this","that","these","those",
+    "am","is","are","the","a","an","and","or","but"
 }
 
-# use keywords to search through recipes & ingredients
-# keep the ten best recipes that have the best keyword hits
+# only use keywords relevant to recipes
+def extract_keywords(query):
+    words = re.findall(r'\b\w+\b', query.lower())
+    return [w for w in words if w not in stopwords]
 
-# return top ten recipes and associated data (in JSON format)
+# score recipes based on relevance to keywords
+def score_recipe(row, keywords):
+    text = f"{row['name']} {row['ingredients']}".lower()
+    score = 0
+    for word in keywords:
+        if word in text:
+            score += 1
+    return score
 
+# perform search through recipe dataset
+def search_recipes(query, df):
+    keywords = extract_keywords(query)
+
+    df = df.copy()
+
+    # score each recipe
+    df["score"] = df.apply(lambda row: score_recipe(row, keywords), axis=1)
+
+    # remove recipes w/ zero matches
+    df = df[df["score"] > 0]
+
+    # sort by best match
+    df = df.sort_values(by="score", ascending=False)
+
+    # return top 10 matches
+    return df.head(10)
