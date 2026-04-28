@@ -2,8 +2,8 @@ import re
 import pandas as pd
 
 # load data
-recipes = pd.read_csv("../data/new_data/NEW_recipes.csv")
-nutrition = pd.read_csv("../data/new_data/NEW_nutrition.csv")
+recipes = pd.read_csv("backend/services/data/new_data/NEW_recipes.csv")
+nutrition = pd.read_csv("backend/services/data/new_data/NEW_nutrition.csv")
 
 # stopwords
 stopwords = {
