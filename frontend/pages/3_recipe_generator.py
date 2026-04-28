@@ -2,6 +2,11 @@ import streamlit as st
 import requests
 from pathlib import Path
 
+if "user_profile" in st.session_state:
+    profile = st.session_state.user_profile
+else:
+    profile = {}
+
 st.set_page_config(page_title="Recipe Generator", page_icon="🍳", layout="wide")
 #da css for styling the this page, such as navbar, buttons 
 st.markdown("""

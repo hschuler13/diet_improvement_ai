@@ -33,6 +33,8 @@ system_message = {
     then use recent conversation history.
 
     Be concise, helpful, and natural.
+
+    {insert user profile information}
     """
 }
 
