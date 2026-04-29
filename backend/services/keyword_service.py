@@ -15,6 +15,9 @@ stopwords = {
     "am","is","are","the","a","an","and","or","but"
 }
 
+# recipes variable declaration
+topRecipes = 0
+
 # only use keywords relevant to recipes
 def extract_keywords(query):
     words = re.findall(r'\b\w+\b', query.lower())
@@ -45,4 +48,43 @@ def search_recipes(query, df):
     df = df.sort_values(by="score", ascending=False)
 
     # return top 10 matches
-    return df.head(10)
+    topRecipes = df.head(10)
+    return topRecipes
+
+def search_nutrition(query, df):
+    # first get top recipe matches
+    topRecipes = search_recipes(query, recipes)
+
+    nutrition_results = []
+
+    for _, recipe in topRecipes.iterrows():
+        # split ingredients into list
+        ingredients = str(recipe["ingredients"]).lower().split(",")
+
+        matched_nutrition = []
+
+        for ingredient in ingredients:
+            ingredient = ingredient.strip()
+
+            # search nutrition dataset for ingredient match
+            matches = df[
+                df["name"].str.lower().str.contains(ingredient, na=False, regex=False)
+            ]
+
+            # add matching rows
+            for _, match in matches.iterrows():
+                matched_nutrition.append({
+                    "ingredient": ingredient,
+                    "Caloric Value": match.get("Caloric Value", "N/A"),
+                    "Protein": match.get("Protein", "N/A"),
+                    "Fat": match.get("Fat", "N/A"),
+                    "Carbohydrates": match.get("Carbohydrates", "N/A")
+                })
+
+        nutrition_results.append({
+            "recipe_name": recipe["name"],
+            "ingredients": recipe["ingredients"],
+            "nutrition_info": matched_nutrition
+        })
+
+    return nutrition_results

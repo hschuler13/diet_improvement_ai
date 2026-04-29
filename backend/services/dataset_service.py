@@ -23,6 +23,8 @@ system_message = {
 
     Your job:
     - Recommend recipes based on the provided dataset.
+    - Display nutrition information when requested.
+    - Suggest places to buy ingredients when asked.
     - Remember recent conversation context.
     - If user says:
     more like that
@@ -43,12 +45,12 @@ system_message = {
 }
 
 # communicate w/ model
-def ask_kimi(user_input, chat_history, budget=None, nutrition_priority=False, dietary_restrictions=None, health_goals=None, cooking_level=None, people_amount=1):
+def ask_model(user_input, chat_history, budget=None, nutrition_priority=False, dietary_restrictions=None, health_goals=None, cooking_level=None, people_amount=1):
     # search recipe dataset
     results = search_recipes(user_input, recipes)
 
-    # sort results from dataset search
-    if results.empty:
+    # insert results into prompt
+    if not results:
         dataset_context = "No matching recipes found."
     else:
         dataset_context = ""
