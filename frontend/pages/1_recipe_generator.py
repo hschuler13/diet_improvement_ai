@@ -2,11 +2,11 @@ import streamlit as st
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
-from backend.services.dataset_service import ask_kimi
+from backend.services.dataset_service import ask_model
 
-st.set_page_config(page_title="Recipe Generation", page_icon="‼️")
+st.set_page_config(page_title="Recipe Generator", page_icon="🧑🏻‍🍳")
 
-st.title("Recipe Generation")
+st.title("Recipe Generator")
 
 
 user_profile = st.session_state.get("user_profile", {})
@@ -41,7 +41,7 @@ if prompt:
     # get ai response
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            reply = ask_kimi(
+            reply = ask_model(
                 chat_history=st.session_state.messages,
                 budget=budget,                       
                 user_input = prompt, 

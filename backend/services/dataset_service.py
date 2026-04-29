@@ -50,7 +50,7 @@ def ask_model(user_input, chat_history, budget=None, nutrition_priority=False, d
     results = search_recipes(user_input, recipes)
 
     # insert results into prompt
-    if not results:
+    if results.empty:
         dataset_context = "No matching recipes found."
     else:
         dataset_context = ""

@@ -1,8 +1,8 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Hello",
-    page_icon="👋",
+    page_title="User Profile",
+    page_icon="🏠",
 )
 
 page_0 = st.Page("pages/0_userprofile.py", title="User Profile", icon="🏠")
