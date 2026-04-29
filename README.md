@@ -1,6 +1,6 @@
 # Diet Improvement AI
 
-Food Nutrition AI is a Python-based project that helps users create healthier diets through recipe tailoring with nutrition data through interacting with an AI assistant.
+Diet Improvement AI is a Python-based project that helps users create healthier diets through recipe tailoring with nutrition data through interacting with an AI assistant.
 
 ---
 
