@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import OpenAI 
 
 load_dotenv()
 
@@ -9,7 +9,7 @@ client = OpenAI(
     api_key=os.environ["HF_TOKEN"],
 )
 
-messages = [{"role": "system", "content": "You are a useful assistant that responds to users' questions"}]
+messages = [{"role": "system", "content": "You are a useful assistant that responds to users' questions."}]
 
 print("start kimi client, type 'exit' to exit")
 
