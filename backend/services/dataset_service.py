@@ -1,14 +1,14 @@
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
-from backend.services.keyword_service import search_recipes, recipes
+from backend.services.keyword_service import search_nutrition, recipes
 
 load_dotenv()
 
-# connect to HuggingFace router
+# connect w/ Groq key
 client = OpenAI(
-    base_url="https://router.huggingface.co/v1",
-    api_key=os.environ["HF_TOKEN"],
+    api_key=os.getenv("GROQ_API_KEY"),
+    base_url="https://api.groq.com/openai/v1"
 )
 
 # chat memory & agent role
@@ -20,6 +20,8 @@ system_message = {
 
     Your job:
     - Recommend recipes based on the provided dataset.
+    - Display nutrition information when requested.
+    - Suggest places to buy ingredients when asked.
     - Remember recent conversation context.
     - If user says:
     more like that
@@ -31,26 +33,36 @@ system_message = {
 
     Be concise, helpful, and natural.
 
+    If 
+
     {insert user profile information}
     """
 }
 
-# communicate w/ model & 
-def ask_kimi(user_input, chat_history):
-    # search recipe dataset
-    results = search_recipes(user_input, recipes)
+# communicate w/ model
+def ask_model(user_input, chat_history):
+    results = search_nutrition(user_input, recipes)
 
-    # sort results from dataset search
-    if results.empty:
+    # insert results into prompt
+    if not results:
         dataset_context = "No matching recipes found."
     else:
         dataset_context = ""
 
-        for _, row in results.iterrows():
+        for row in results:
+            if isinstance(row, dict):
+                recipe_name = row.get("recipe_name", "")
+                ingredients = row.get("ingredients", "")
+                nutrition_info = row.get("nutrition_info", "")
+            else:
+                recipe_name = row[0] if len(row) > 0 else ""
+                ingredients = row[1] if len(row) > 1 else ""
+                nutrition_info = row[2] if len(row) > 2 else ""
+
             dataset_context += f"""
-                Recipe Name: {row['name']}
-                Ingredients: {row['ingredients']}
-                Relevance Score: {row['score']}
+                Recipe Name: {recipe_name}
+                Ingredients: {ingredients}
+                Nutrition Info: {nutrition_info}
                 """
 
     # build prompt 
@@ -74,7 +86,7 @@ def ask_kimi(user_input, chat_history):
 
     # communicate w/ model
     completion = client.chat.completions.create(
-        model="moonshotai/Kimi-K2.6:novita",
+        model="llama-3.1-8b-instant",
         messages=messages,
         temperature=0.7
     )
