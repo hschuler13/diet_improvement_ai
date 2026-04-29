@@ -8,10 +8,10 @@ from backend.services.nutrtion_service import get_ingredients_restrictions, get_
 
 load_dotenv()
 
-# connect to HuggingFace router
+# connect w/ Groq key
 client = OpenAI(
-    base_url="https://router.huggingface.co/v1",
-    api_key=os.environ["HF_TOKEN"],
+    api_key=os.getenv("GROQ_API_KEY"),
+    base_url="https://api.groq.com/openai/v1"
 )
 
 # chat memory & agent role
@@ -42,7 +42,7 @@ system_message = {
     """
 }
 
-# communicate w/ model & 
+# communicate w/ model
 def ask_kimi(user_input, chat_history, budget=None, nutrition_priority=False, dietary_restrictions=None, health_goals=None, cooking_level=None, people_amount=1):
     # search recipe dataset
     results = search_recipes(user_input, recipes)
@@ -144,7 +144,7 @@ def ask_kimi(user_input, chat_history, budget=None, nutrition_priority=False, di
 
     # communicate w/ model
     completion = client.chat.completions.create(
-        model="moonshotai/Kimi-K2.6:novita",
+        model="llama-3.1-8b-instant",
         messages=messages,
         temperature=0.7
     )
