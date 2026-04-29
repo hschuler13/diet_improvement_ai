@@ -23,6 +23,7 @@ q9 = form.text_area("9. What are your health goals?")
 q10 = form.text_area("10. What food allergies, restrictions or sensitivities have to be taken into consideration?")
 q11 = form.text_input("11. What types of cuisine do you prefer?")
 q12 =  form.text_area("12. What other considerations should be taken into account when creating nutrition & diet recommendations for you?")
+q14 = form.text_area("13. What is your zip code?")
 
 # form submit
 submitForm = form.form_submit_button("Submit")

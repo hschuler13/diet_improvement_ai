@@ -1,4 +1,7 @@
 import streamlit as st
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 from backend.services.dataset_service import ask_kimi
 
 st.set_page_config(page_title="Recipe Generation", page_icon="‼️")

@@ -1,4 +1,6 @@
 import os
+import ast
+import re
 from dotenv import load_dotenv
 from openai import OpenAI
 from backend.services.keyword_service import search_recipes, recipes
@@ -33,9 +35,9 @@ system_message = {
     Be concise, helpful, and natural.
 
     IMPORTANT TO FOLLOW THESE INSTRUCTIONS:
-    - Never suggest ingredients that conflicts with user dietary restrictions or allergies. 
+    - Never suggest ingredients that conflicts with user dietary restrictions, aversions or allergies. 
     - Scale recipe portions for the number of people specified by the user.
-    - Match recipe complexity to the user's cooking level.
+    - Match recipe complexity to the user's cooking level and user count of people.
     - Stay within user's budget if provided by them.
     """
 }
@@ -52,17 +54,18 @@ def ask_kimi(user_input, chat_history, budget=None, nutrition_priority=False, di
         dataset_context = ""
 
         for _, row in results.iterrows():
-            ing_list = [i.strip() for i in str(row['ingredients']).split(',')]
+            # Parse ingredients - handle both string list format and comma-separated
+            raw_ingredients = str(row.get('ingredients', '')).strip()
+
+            clean_str = re.sub(r"[\[\]'\"]", "", raw_ingredients)
+            ing_list = [i.strip() for i in clean_str.split(',') if i.strip()]
+
             totals = calculate_total_nutrition(ing_list)
 
             dataset_context += f"""
                 Recipe Name: {row['name']}
                 Ingredients: {row['ingredients']}
                 Relevance Score: {row['score']}
-                Nutritional Info [approx]: {row['nutrition_info']}-------
-                    Calories: {totals['Caloric Value']} kcal
-                    Protein: {totals['Protein']}g | Fat: {totals['Fat']}g | Carbs: {totals['Carbohydrates']}g
-                    Sodium: {totals['Sodium']}g | Fiber: {totals['Dietary Fiber']}g
                 """ 
     safety_context = ""
     if dietary_restrictions:
@@ -123,14 +126,13 @@ def ask_kimi(user_input, chat_history, budget=None, nutrition_priority=False, di
                 {dataset_context}
 
                 Important Instructions:
-                - Never suggest ingredients that conflicts with user: {dietary_restrictions} or allergies.
+                - Never suggest ingredients that conflicts with user's dietary restrictions/sensitivities/allergies.
                 - Scale recipe portions for the number of people specified by the user.
                 - Match recipe complexity to the user's cooking level.
                 - Stay within user's budget if provided by them.
                 - Only recommend recipes from the provided dataset.
 
-                Use recent conversation context if useful.
-                Use only provided recipes when recommending.
+                Use recent conversation context to remember user preferences/needs.
                 """
 
     messages = [system_message]
