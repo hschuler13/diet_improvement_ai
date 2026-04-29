@@ -1,4 +1,5 @@
 import streamlit as st
+from backend.services.dataset_service import ask_kimi
 
 # initiate form
 form = st.form("userProfileForm")
@@ -22,6 +23,7 @@ q9 = form.text_area("9. What are your health goals?")
 q10 = form.text_area("10. What food allergies, restrictions or sensitivities have to be taken into consideration?")
 q11 = form.text_input("11. What types of cuisine do you prefer?")
 q12 =  form.text_area("12. What other considerations should be taken into account when creating nutrition & diet recommendations for you?")
+q14 = form.text_area("13. What is your zip code?")
 
 # form submit
 submitForm = form.form_submit_button("Submit")
@@ -33,14 +35,16 @@ if submitForm:
         "store_distance": q2,
         "people_amount": q3,
         "grocery_sources": q4,
-        "limitations": q5,
+        "profile_allergies": q5,
         "meal_values": q6,
-        "cooking_skill": q7,
+        "cooking_level": q7,
         "weekly_cooking_time": q8,
         "health_goals": q9,
         "allergies": q10,
         "preferred_cuisine": q11,
         "extra_notes": q12
     }
+
+
 
     st.success("user profile form submitted")
